@@ -15,6 +15,10 @@ def heading():
     print("******************************Techno Property Nepal *********************************************")
     print("-------------------------------------------------------------------------------------------------")
  
+def validate_name(name):
+    return all(char.isalpha() or char.isspace() for char in name)
+
+check = True
 # Function to rent the land
 def rent():
     d = {}
@@ -37,20 +41,41 @@ def rent():
         if land_id in d.keys():
             if d[land_id]['Status'] == 'Available':
                 d[land_id]['Status'] = 'Not_Available' # Setting the status of land as not available in directory
-                name = input("Enter your name::") # Taking name as input to print it in bill
-                phone = int(input("Enter your phone number::")) # Taking phone as input to print it in bill
-                month = int(input("Enter the number of months you want to rent the land::" ))
+                while check:
+                    name = input("Enter your name::") # Taking name as input to print it in bill
+                    if validate_name(name):
+                        break
+                    else:
+                        print("Invalid input. Please enter a valid name containing only alphabets.")
+                while check:
+                    phone = int(input("Enter your phone number::\t+977 ")) # Taking phone as input to print it in bill
+                    if(len(str(phone)) != 10):
+                        print("Invalid phone number")
+                    else:
+                        break
+                while check:
+                    month = int(input("Enter the number of months you want to rent the land::" ))
+                    if month < 1:
+                        print("Invalid input")
+                    else:
+                        break
+                location = d[land_id]['Location']
+                direction = d[land_id]['Direction']
+                anna = d[land_id]['Anna']
 
                 #Calculation of total price
                 total_price = int(d[land_id]['Price']) * month
                 print("Total price for renting the land for", month, "months is Rs.", total_price)
                 print("Land rented successfully")
-                return land_id,name, phone, month, total_price
+                return land_id, name, phone, month, total_price, location, direction, anna # Returning the values to main function
+            else:
+                print("Land is already rented")
         else:
             print("Land ID not found")
     except ValueError:
         print("Invalid input")
     file.close()
+
 
 # Function to return the rented land
 def return_land():
@@ -70,25 +95,40 @@ def return_land():
         d[key] = value
     try:
         # Check if the land is available or not
-        land_id = input("Enter the land ID you want to return::")
-        before = d[land_id]['Status']
-        if land_id in d.keys():
-            if d[land_id]['Status'] == 'Not_Available':
-                d[land_id]['Status'] = 'Available' #Setting the status af land as available in directory
-        else:
-            print("Land ID not found")
-    except ValueError:
+        while check:
+            land_id = input("Enter the land ID you want to return::")
+       
+            if land_id in d.keys():
+                before = d[land_id]['Status']
+                if d[land_id]['Status'] == 'Not_Available':
+                    d[land_id]['Status'] = 'Available' #Setting the status af land as available in directory
+                    break
+            else:
+                print("Land ID not found")
+                print("Please enter the correct land ID")
+        
+    except:
         print("Invalid input")
     file.close()
     return land_id, before
 
 # Function to find the fine for rent of land
-def bill_fine(month, land_id):
-    
-
+def bill_fine(land_id):
+    print('Land id', land_id)
     # Asking the user to enter the number of months the land is rented
-    time = int(input("Enter the number of months you took to return the land::"))
-
+    while check:
+        month = int(input("Enter the number of months you rented the land::" ))
+        if month < 1:
+            print("Invalid input")
+        else:
+            break
+    while check:
+        time = int(input("Enter the number of months you took to return the land::"))
+        if month < 1:
+            print("Invalid input")
+        else:
+            break
+    
     d = {} # Declaring the directory
     file = open('land.txt', 'r')  # Opening the file to read the data
     data = file.readlines() # Reading the data from the file
@@ -107,42 +147,43 @@ def bill_fine(month, land_id):
 
     # Checking if the land is returned at the correct time
     if (time == month or time < month):
+        fine = 0 # Setting the fine as 0
         print("Total price for renting the land for", month, "months is Rs.", total_price)
         print("Land returned successfully")
         
     # Checking if the land is returned late
     elif time > month:
         fine = (time - month) * int(d[land_id]['Price']) # Calculating the fine for returning the land late
-        print("Total price for renting the land for", month, "months is Rs.", total_price)
-        print("Fine for returning the land late is Rs.", fine)
-        print("Total price for renting the land for", time, "months is Rs.", total_price + fine)
+    return fine,month
 
 # Function to print the bill for rent of land
-def bill(land_id , name, phone, month, total_price):
+def bill(land_id ,location , direction, anna, name, phone, month, total_price):
     heading()
     print("Bill")
     print("-------------------------------------------------------------------------------------------------")
-    date = datetime.date.today()
-    print("Date::", date)
-    print("Land ID::", land_id)
+    unique = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    date = datetime.date.today().strftime("%Y-%m-%d")
+    time = datetime.datetime.now().time().strftime("%H:%M:%S")
+    print("Date::", date,'\t\t\t' "Time::", time)
+    print("Land ID::", land_id, '\t\t\t' "Direction::", direction)
+    print("Location::", location, '\t\t\t' "Anna::", anna)
     print("Name::", name)
     print("Phone::", phone)
     print("Months::", month)
     print("Total price::", total_price)
     print("Bill printed successfully")
-    
-   
     print("-------------------------------------------------------------------------------------------------")
     
     # Writing the bill in a file
-    file = open('bill_' + name + '.txt', 'w')
-
+    file = open('bill_'+ str(unique)+'.txt', 'w')
     file.write("-------------------------------------------------------------------------------------------------\n")
     file.write("******************************Techno Property Nepal *********************************************\n")
     file.write("-------------------------------------------------------------------------------------------------\n")
     file.write("Bill\n")
     file.write("-------------------------------------------------------------------------------------------------\n")
-    file.write("Land ID:: " + land_id + '\n')
+    file.write("Date:: " + date + '\t\t\t' "Time:: " + time + '\n')
+    file.write("Land ID:: " + land_id  + '\t\t\t' "Direction:: " + direction + '\n')
+    file.write("Location:: " + location + '\t\t\t' "Anna:: " + anna + '\n')
     file.write("Name:: " + name + '\n')
     file.write("Phone:: " + str(phone) + '\n')
     file.write("Months:: " + str(month) + '\n')
@@ -151,4 +192,71 @@ def bill(land_id , name, phone, month, total_price):
     file.write("-------------------------------------------------------------------------------------------------\n")
     file.close()
 
+# Function to print bill for returning the land
+def bill_return(fine,month,land_id):
+    d={}#Declaring directory    
+    file = open('land.txt','r')#Opening file to read the data
+    data = file.readlines()
+    for line in data:
+        col = line.split()
+        key = col[0]
+        value = {
+            'Location': col[1],
+            'Direction': col[2],
+            'Anna': col[3],
+            'Price': col[4],
+            'Status': ' '.join(col[5:])
+        }
+        d[key] = value
     
+    while check:
+        name = input("Enter your name::") # Taking name as input to print it in bill
+        if validate_name(name):
+            break
+        else:
+            print("Invalid input. Please enter a valid name containing only alphabets.")
+    while check:
+        phone = int(input("Enter your phone number::\t+977 ")) # Taking phone as input to print it in bill
+        if(len(str(phone)) != 10):
+            print("Invalid phone number")
+        else:
+            break
+    location = d[land_id]['Location']
+    direction = d[land_id]['Direction']
+    anna = d[land_id]['Anna']
+    total_price = (int(d[land_id]['Price']) * month) + fine
+
+    heading()
+    print("Bill")
+    print("-------------------------------------------------------------------------------------------------")
+    unique = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    date = datetime.date.today().strftime("%Y-%m-%d")
+    time = datetime.datetime.now().time().strftime("%H:%M:%S")
+    print("Date::", date,'\t\t\t' "Time::", time)
+    print("Land ID::", land_id, '\t\t\t' "Direction::", direction)
+    print("Location::", location, '\t\t\t' "Anna::", anna)
+    print("Name::", name)
+    print("Phone::", phone)
+    print("Months::", month)
+    print("Total price::", total_price)
+    print("Land returned successfully")
+    print("-------------------------------------------------------------------------------------------------")
+    
+    # Writing the bill in a file
+    file = open('bill_'+ str(unique)+'.txt', 'w')
+
+    file.write("-------------------------------------------------------------------------------------------------\n")
+    file.write("******************************Techno Property Nepal *********************************************\n")
+    file.write("-------------------------------------------------------------------------------------------------\n")
+    file.write("Bill\n")
+    file.write("-------------------------------------------------------------------------------------------------\n")
+    file.write("Date:: " + date + '\t\t\t' "Time:: " + time + '\n')
+    file.write("Land ID:: " + land_id + '\t\t\t' "Direction:: " + direction + '\n')
+    file.write("Location:: " + location + '\t\t\t' "Anna:: " + anna + '\n')
+    file.write("Name:: " + name + '\n')
+    file.write("Phone:: " + str(phone) + '\n')
+    file.write("Months:: " + str(month) + '\n')
+    file.write("Total price:: " + str(total_price) + '\n')
+    file.write("Land returned successfully\n")
+    file.write("-------------------------------------------------------------------------------------------------\n")
+    file.close()

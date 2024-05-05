@@ -1,6 +1,6 @@
 # imporing all the necessary modules
 from read import read
-from operation import heading,choice_,rent,return_land,bill,bill_fine
+from operation import heading,choice_,rent,return_land,bill,bill_fine,bill_return
 from write import update_status,update_returnStatus
 
 
@@ -15,18 +15,18 @@ while(program_run == True):
         choice = int(input('Enter your choice::'))
         
         if(choice == 1):
+            heading()
             read()
             check_empty= rent()
             if not check_empty:
-                print("Land not available")
                 continue
-            land_id, name, phone, month, total_price = check_empty
+            land_id, name, phone, month, total_price, location, direction, anna = check_empty
            
             update_status(land_id)
-            bill(land_id, name, phone, month, total_price)
+            bill(land_id ,location , direction, anna, name, phone, month, total_price)
             a = input(("Do you wish to continue using our system:: y/n\t")).lower()
             if(a =='y'):
-                choice_()
+                continue
             elif(a =='n'):
                 print("Thank you for using our system.")
                 print("Please visit again")
@@ -38,13 +38,12 @@ while(program_run == True):
         elif (choice == 2):
             read()
             land_id,stat = return_land()
-            if stat == 'Available':
+            if stat == 'Available' :
                 print("Land is already available")
             else:
+                fine,month_ = bill_fine(land_id) # Calling the function to calculate the fine
                 update_returnStatus(land_id)
-                month = int(input("Enter the number of months you rent the land::"))
-                bill_fine(month, land_id) # Calling the function to calculate the fine
-
+                bill_return(fine,month_,land_id)
             a = input(("Do you wish to continue using our system:: y/n\t")).lower()
             if(a == 'y'):
                 choice_()
@@ -62,6 +61,6 @@ while(program_run == True):
             program_run =False
         else:
             print("Invalid input")
-    except ValueError:
+    except:
         print("Invalid input")
         print('\n')
