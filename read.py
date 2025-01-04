@@ -28,4 +28,4 @@ def read(): # Function to display the available lands
         print(value['Status'].ljust(14), end='\t')
         print('|')
     print("-------------------------------------------------------------------------------------------------")
-    file.close() #Closing the file to read the data
+    file.close() #Closing the file to read the data         
