@@ -35,7 +35,7 @@ This is a simple **Land Rental System** developed in Python as a coursework proj
 
    ```bash
    git clone https://github.com/yourusername/land-rental-system.git
-   cd land-rental-system
+   cd Assect-Rental-System
 
 ## How It Works
 - **Renting a Land:**
